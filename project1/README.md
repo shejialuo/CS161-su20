@@ -147,3 +147,14 @@ ln -s README hack
 ```
 
 Well, the file is too long! So ridiculous.
+
+## Task 6
+
+For task 6, we use `ret2esp` to hack. Because the `jump *esp` is in the `.text`,
+which isn't influenced by the ASLR. It is easy to find the instruction, because
+in the `magic` function, `i |= 58623`. And we can use gdb easily find the address
+of the instruction is `0x8048666`. So our modified address should be `0x8048666`.
+
+Let's we find the `buf` start address (which may be changed) is `0xbfd32570`, and
+the `eip` address (which may be changed) is `0xbfd3259c`. So the padding byte is
+44. Thus we could change the `eip`'s content to `0x8048666`.
