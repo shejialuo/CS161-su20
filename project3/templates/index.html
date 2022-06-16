@@ -1,0 +1,22 @@
+{{define "title"}} Home {{end}}
+
+{{define "body"}}
+    <img src="static/images/UB4.jpg" alt='Welcome to {{template "sitename"}}!' class="UBimg container">
+    <h1 class="text">Welcome to {{template "sitename"}}!</h1>
+    <p class="text">
+        We've innovated the file-sharing industry by deciding that speed and
+        simplicity are more important than all else... even security.
+    </p>
+    <p class="text">Begin using our amazing services today!</p>
+
+    <div class="button-group">
+        {{if not .Username}}
+        <a href="/register" class="button text">Sign up</a>
+        <a href="/login" class="button text">Log in</a>
+        {{else}}
+        <a href="/upload" class="button text">Upload files</a>
+        <a href="/list" class="button text">List files</a>
+        <a href="/share" class="button text">Share files</a>
+        {{end}}
+    </div>
+{{end}}

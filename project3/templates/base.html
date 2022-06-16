@@ -1,0 +1,43 @@
+{{define "sitename" -}} UnicornBox {{- end}}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel='icon' href='static/images/favicon.ico' type='image/x-icon'/>
+    <link rel="stylesheet" type="text/css" href="static/css/styles.css">
+    <title>{{block "title" .}}{{end}}</title>
+</head>
+<body>
+    <nav class="navbar">
+        <ul>
+            <div class="navbar-brand">
+                <li><a href="/"><img src="static/images/favicon.ico"> {{template "sitename"}}</a></li>
+            </div>
+            {{if .Username}}
+            <div class="navbar-start">
+                <li><a href="/upload">Upload files</a></li>
+                <li><a href="/list">List files</a></li>
+                <li><a href="/share">Share files</a></li>
+            </div>
+            <div class="navbar-end">
+                <li><a href="/logout">Log Out</a></li>
+                <li><a>Hi! {{.Username}}</a></li>
+            </div>
+            {{else}}
+            <div class="navbar-end">
+                <li><a href="/register">Sign up</a></li>
+                <li><a href="/login">Log in</a></li>
+            </div>
+            {{end}}
+        </ul>
+    </nav>
+    {{if .Error}}
+    <p class="notification">
+        {{.Error}}
+    </p>
+    {{end}}
+    {{block "body" .}}
+    {{end}}
+</body>
+</html>

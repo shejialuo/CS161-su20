@@ -1,0 +1,20 @@
+{{define "title"}} Register {{end}}
+
+{{define "body"}}
+    <div class="container">
+        <h1 class="text">Sign up as a new user</h1>
+        <form method="POST">
+            <p class="text">
+                Username:
+                <input type="text" name="username">
+            </p>
+            <p class="text">
+                Password:
+                <input type="password" name="password">
+            </p>
+            <p class="text">
+                <input type="submit" value="Submit">
+            </p>
+        </form>
+    </div>
+{{end}}

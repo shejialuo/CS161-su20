@@ -1,0 +1,34 @@
+{{define "title"}} List Files {{ end }}
+
+{{define "body"}}
+	<h1>Files</h1>
+	<table>
+		<tr>
+			<th>Owner</th>
+			<th>File name</th>
+			<th></th>
+			<th></th>
+			<th></th>
+		</tr>
+
+        {{ range .Files }}
+			<tr>
+				<td>
+                    {{ .FileOwner }}
+				</td>
+				<td>
+                    {{ .Filename }}
+				</td>
+				<td>
+					<a href="/file/{{ .FilePath }}">Open</a>
+				</td>
+			</tr>
+
+        {{ else }}
+			<tr>
+				<td>No files uploaded yet!</td>
+			</tr>
+        {{ end }}
+	</table>
+
+{{ end }}

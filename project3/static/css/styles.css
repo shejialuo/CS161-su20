@@ -1,0 +1,89 @@
+* {
+    font-family: Roboto, Oxygen, sans-serif;
+}
+
+.button {
+    background-color: cornflowerblue;
+    color: white;
+    padding: 10px 20px;
+    font-size: 20px;
+    margin: 4px 2px;
+    cursor: pointer;
+    text-decoration: none;
+    width: 20%;
+    height: 25px;
+    border-radius: 15px;
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.container {
+    padding: 20px;
+}
+
+.navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: cornflowerblue;
+}
+
+.navbar a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 1rem 1rem;
+    border: solid cornflowerblue;
+    text-decoration: none;
+}
+
+.navbar a:hover {
+    color: cornflowerblue;
+    background-color: whitesmoke;
+}
+
+.navbar img {
+    height: .9rem;
+    width: auto;
+}
+
+.navbar-brand a {
+    background-color: white;
+    color: cornflowerblue;
+}
+
+.navbar-brand li {
+    float: left;
+}
+
+.navbar-start li {
+    float: left;
+}
+
+.navbar-end li {
+    float: right;
+}
+
+.notification {
+    text-align: center;
+    background-color: cornflowerblue;
+    color: white;
+    padding: 1rem;
+    border-radius: 15px;
+}
+
+.text {
+    text-align: center;
+}
+
+.UBimg {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 60%;
+}
