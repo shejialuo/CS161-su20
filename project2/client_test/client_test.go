@@ -6,15 +6,19 @@ package client_test
 import (
 	// Some imports use an underscore to prevent the compiler from complaining
 	// about unused imports.
+	"encoding/hex"
 	_ "encoding/hex"
 	_ "errors"
+	"math/rand"
 	_ "strconv"
 	_ "strings"
 	"testing"
+	"time"
 
 	// A "dot" import is used here so that the functions in the ginko and gomega
 	// modules can be used without an identifier. For example, Describe() and
 	// Expect() instead of ginko.Describe() and gomega.Expect().
+	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -25,6 +29,7 @@ import (
 
 func TestSetupAndExecution(t *testing.T) {
 	RegisterFailHandler(Fail)
+	RunSpecs(t, "User Registration and User Log Tests")
 	RunSpecs(t, "Client Tests")
 }
 
@@ -42,6 +47,141 @@ const contentThree = "cryptocurrency!"
 // into functional categories. They can be nested into
 // a tree-like structure.
 // ================================================
+
+var _ = Describe("User Registration Tests", func() {
+
+	BeforeEach(func() {
+		userlib.DatastoreClear()
+		userlib.KeystoreClear()
+	})
+
+	Describe("Basic User Registration Test", func() {
+		Specify("Register two same username", func() {
+			userlib.DebugMsg("Register a new user alice")
+			alice, err := client.InitUser("alice", "Qq142536!")
+			Expect(err).To(BeNil())
+			Expect(alice).ToNot(BeNil())
+			userlib.DebugMsg("Register a new user also named alice")
+			aliceAnother, err := client.InitUser("alice", "Qq142536!")
+			Expect(err).ToNot(BeNil())
+			Expect(aliceAnother).To(BeNil())
+		})
+		Specify("Register two case-sensitive username", func() {
+			userlib.DebugMsg("Register a new user alice")
+			alice, err := client.InitUser("alice", "Qq142536!")
+			Expect(err).To(BeNil())
+			Expect(alice).ToNot(BeNil())
+			userlib.DebugMsg("Register a new user Alice")
+			caseSensitiveAlice, err := client.InitUser("Alice", "Qq142536!")
+			Expect(err).To(BeNil())
+			Expect(caseSensitiveAlice).ToNot(BeNil())
+		})
+		Specify("Register a new user with empty username", func() {
+			userlib.DebugMsg("Register a new user with empty name")
+			empty, err := client.InitUser("", "Qq142536!!!!!")
+			Expect(err).ToNot(BeNil())
+			Expect(empty).To(BeNil())
+		})
+		Specify("Register a new user with empty password", func() {
+			userlib.DebugMsg("Register a new user alice with empty password")
+			alice, err := client.InitUser("alice", "")
+			Expect(err).To(BeNil())
+			Expect(alice).ToNot(BeNil())
+		})
+	})
+	Describe("Random User Registration Test", func() {
+		Specify("Random Test", func() {
+			rand.Seed(time.Now().UnixNano())
+			isVisited := make(map[string]int)
+			for i := 0; i < 10; i++ {
+				b := make([]byte, 1)
+				rand.Read(b)
+				randUsername := hex.EncodeToString(b)
+				userlib.DebugMsg("Register a new user %v", randUsername)
+				user, err := client.InitUser(randUsername, randUsername)
+				if _, ok := isVisited[randUsername]; !ok {
+					Expect(err).To(BeNil())
+					Expect(user).ToNot(BeNil())
+					isVisited[randUsername] = 1
+				} else {
+					Expect(err).ToNot(BeNil())
+					Expect(user).To(BeNil())
+				}
+			}
+		})
+	})
+})
+
+var _ = Describe("User Login Tests", func() {
+	BeforeEach(func() {
+		userlib.DatastoreClear()
+		userlib.KeystoreClear()
+	})
+	Describe("Basic Login Tests", func() {
+		Specify("Login with correct password", func() {
+			client.InitUser("alice", "Qq142536!")
+			aliceLaptop, err := client.GetUser("alice", "Qq142536!")
+			Expect(err).To(BeNil())
+			Expect(aliceLaptop).ToNot(BeNil())
+		})
+		Specify("Login with incorrect password", func() {
+			client.InitUser("alice", "Qq142536!")
+			aliceLaptop, err := client.GetUser("alice", "qq142536!")
+			Expect(err).ToNot(BeNil())
+			Expect(aliceLaptop).To(BeNil())
+			aliceLaptop, err = client.GetUser("alice", "Qq142536")
+			Expect(err).ToNot(BeNil())
+			Expect(aliceLaptop).To(BeNil())
+			aliceLaptop, err = client.GetUser("alice", "Qq142536!!")
+			Expect(err).ToNot(BeNil())
+			Expect(aliceLaptop).To(BeNil())
+			aliceLaptop, err = client.GetUser("alice", "Qq142536!  ")
+			Expect(err).ToNot(BeNil())
+			Expect(aliceLaptop).To(BeNil())
+		})
+		Specify("Login with empty password", func() {
+			client.InitUser("alice", "")
+			aliceLaptop, err := client.GetUser("alice", "")
+			Expect(err).To(BeNil())
+			Expect(aliceLaptop).ToNot(BeNil())
+		})
+	})
+	Describe("Attacker Tests", func() {
+		Specify("Delete the DataStore entry", func() {
+			client.InitUser("alice", "Qq142536!")
+			hash := userlib.Hash([]byte("alice_login"))
+			id, _ := uuid.FromBytes(hash[:16])
+			userlib.DatastoreDelete(id)
+			aliceLaptop, err := client.GetUser("alice", "Qq142536!")
+			Expect(err).ToNot(BeNil())
+			Expect(aliceLaptop).To(BeNil())
+		})
+		Specify("Simply change the content of the DataStore", func() {
+			client.InitUser("alice", "Qq142536!")
+			hash := userlib.Hash([]byte("alice_login"))
+			id, _ := uuid.FromBytes(hash[:16])
+			userlib.DatastoreSet(id, []byte("dasdaf123das"))
+			aliceLaptop, err := client.GetUser("alice", "Qq142536!")
+			Expect(err).ToNot(BeNil())
+			Expect(aliceLaptop).To(BeNil())
+		})
+		Specify("Retry and replace attack to test integrity", func() {
+			client.InitUser("alice", "Qq142536!")
+			client.InitUser("attacker", "attacker")
+			hashAttacker := userlib.Hash([]byte("attacker_login"))
+			idAttacker, _ := uuid.FromBytes(hashAttacker[:16])
+			attackerContent, _ := userlib.DatastoreGet(idAttacker)
+			hash := userlib.Hash([]byte("alice_login"))
+			id, _ := uuid.FromBytes(hash[:16])
+			// If there is no integrity support, we could replace the
+			// alice password and hack it.
+			userlib.DatastoreSet(id, attackerContent)
+			attacker, err := client.GetUser("alice", "attacker")
+			Expect(err).ToNot(BeNil())
+			Expect(attacker).To(BeNil())
+		})
+	})
+})
 
 var _ = Describe("Client Tests", func() {
 
